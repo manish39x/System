@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a0a0a'/%3E%3Cpolygon points='50,4 96,50 50,96 4,50' fill='none' stroke='%23fbbf24' stroke-width='4'/%3E%3Cpolygon points='50,20 74,70 26,70' fill='none' stroke='%23e8e8e0' stroke-width='2.5'/%3E%3Cpolygon points='50,80 26,30 74,30' fill='none' stroke='%2360a5fa' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='7' fill='%23fbbf24'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='50' cy='4' r='3' fill='%23f87171'/%3E%3Ccircle cx='96' cy='50' r='3' fill='%23f87171'/%3E%3Ccircle cx='50' cy='96' r='3' fill='%23f87171'/%3E%3Ccircle cx='4' cy='50' r='3' fill='%23f87171'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a0a0a'/%3E%3Cpolygon points='50,4 96,50 50,96 4,50' fill='none' stroke='%23fbbf24' stroke-width='4'/%3E%3Cpolygon points='50,20 74,70 26,70' fill='none' stroke='%23e8e8e0' stroke-width='2.5'/%3E%3Cpolygon points='50,80 26,30 74,30' fill='none' stroke='%2360a5fa' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='7' fill='%23fbbf24'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='50' cy='4' r='3' fill='%23f87171'/%3E%3Ccircle cx='96' cy='50' r='3' fill='%23f87171'/%3E%3Ccircle cx='50' cy='96' r='3' fill='%23f87171'/%3E%3Ccircle cx='4' cy='50' r='3' fill='%23f87171'/%3E%3C/svg%3E">
+<title>War System</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #2a2a2a;
+  --border2: #3a3a3a;
+  --text: #e8e8e0;
+  --muted: #666660;
+  --dim: #333330;
+  --green: #4ade80;
+  --green-dim: #1a3a26;
+  --red: #f87171;
+  --red-dim: #3a1a1a;
+  --amber: #fbbf24;
+  --amber-dim: #3a2a0a;
+  --blue: #60a5fa;
+  --blue-dim: #1a2a3a;
+  --purple: #a78bfa;
+  --purple-dim: #2a1a3a;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+.shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 2rem 1.25rem; display: flex; flex-direction: column; gap: 2rem; }
+.logo { font-family: var(--mono); font-size: 11px; letter-spacing: .15em; color: var(--muted); text-transform: uppercase; }
+.logo span { color: var(--red); }
+
+.pts-display { text-align: center; padding: 1.5rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.pts-number { font-family: var(--mono); font-size: 48px; font-weight: 600; line-height: 1; color: var(--amber); }
+.pts-label { font-size: 11px; letter-spacing: .1em; color: var(--muted); margin-top: 4px; text-transform: uppercase; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: .75rem; }
+.stat-label { font-size: 10px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.stat-val { font-family: var(--mono); font-size: 18px; font-weight: 500; }
+.stat-val.green { color: var(--green); }
+.stat-val.red { color: var(--red); }
+.stat-val.amber { color: var(--amber); }
+.stat-val.blue { color: var(--blue); }
+
+.sidebar-rules { flex: 1; }
+.rules-title { font-size: 10px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; margin-bottom: .75rem; }
+.rule { display: flex; justify-content: space-between; align-items: center; padding: .4rem 0; border-bottom: 1px solid var(--border); font-size: 12px; color: #aaa; }
+.rule:last-child { border-bottom: none; }
+.rule-pts { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.plus { color: var(--green); }
+.minus { color: var(--red); }
+
+.lock-btn { width: 100%; padding: .75rem; background: var(--red); color: #000; font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; border: none; border-radius: 6px; cursor: pointer; transition: opacity .2s; }
+.lock-btn:hover { opacity: .85; }
+
+/* MAIN */
+.main { padding: 2rem; overflow-y: auto; }
+.main-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+.day-title { font-family: var(--mono); font-size: 24px; font-weight: 600; }
+.day-sub { font-size: 13px; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
+.today-badge { font-family: var(--mono); font-size: 11px; padding: 4px 12px; border: 1px solid var(--border2); border-radius: 4px; color: var(--muted); }
+
+/* PROGRESS BAR */
+.progress-wrap { margin-bottom: 2rem; }
+.progress-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.progress-bar { height: 6px; background: var(--dim); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width .4s; }
+.hour-blocks { display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; margin-top: 8px; }
+.hb { height: 8px; border-radius: 2px; background: var(--dim); cursor: pointer; transition: background .15s; }
+.hb.done { background: var(--green); }
+.hb.active { background: var(--amber); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* SCHEDULE */
+.schedule-title { font-size: 10px; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; margin-bottom: 1rem; font-family: var(--mono); }
+.schedule { display: flex; flex-direction: column; gap: 6px; }
+
+.block { display: grid; grid-template-columns: 80px 24px 1fr auto; align-items: center; gap: 12px; padding: .75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; overflow: hidden; }
+.block::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.block.cat-work::before { background: var(--blue); }
+.block.cat-study::before { background: var(--purple); }
+.block.cat-body::before { background: var(--green); }
+.block.cat-break::before { background: var(--amber); }
+.block.cat-admin::before { background: var(--muted); }
+
+.block.done { background: var(--surface2); border-color: var(--border); }
+.block.done .block-title { color: var(--muted); text-decoration: line-through; }
+.block.done .block-time { color: var(--dim); }
+.block.active-block { border-color: var(--amber); }
+
+.block-time { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.block-check { width: 20px; height: 20px; border: 1px solid var(--border2); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.block.done .block-check { background: var(--green); border-color: var(--green); color: #000; }
+.block-info { min-width: 0; }
+.block-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.block-desc { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.block-tag { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; letter-spacing: .05em; }
+.tag-work { background: var(--blue-dim); color: var(--blue); }
+.tag-study { background: var(--purple-dim); color: var(--purple); }
+.tag-body { background: var(--green-dim); color: var(--green); }
+.tag-break { background: var(--amber-dim); color: var(--amber); }
+.tag-admin { background: var(--dim); color: var(--muted); }
+
+/* LOG */
+.log-section { margin-top: 2rem; }
+.log-entry { display: flex; justify-content: space-between; align-items: center; padding: .6rem 0; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 12px; gap: 8px; }
+.log-entry:last-child { border-bottom: none; }
+.log-date { color: var(--muted); flex-shrink:0; }
+.log-label { color: var(--text); flex:1; }
+.log-pts.pos { color: var(--green); }
+.log-pts.neg { color: var(--red); }
+
+/* PUNISHMENT / REWARD PANELS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+.panel-title { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: .75rem; }
+.panel-title.red { color: var(--red); }
+.panel-title.green { color: var(--green); }
+
+/* PUSHUP DEBT */
+.pushup-big { font-family: var(--mono); font-size: 36px; font-weight: 600; color: var(--red); line-height: 1; }
+.pushup-sub { font-size: 11px; color: var(--muted); margin-top: 4px; margin-bottom: 1rem; }
+.pushup-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.pushup-btns button { font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border2); background: transparent; color: var(--text); cursor: pointer; }
+.pushup-btns button:hover { background: var(--surface2); }
+.pushup-btns button.done-btn { border-color: var(--green); color: var(--green); }
+.punishment-list { display: flex; flex-direction: column; gap: 6px; }
+.punishment-item { font-size: 12px; color: #aaa; padding: .35rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 8px; }
+.punishment-item:last-child { border-bottom: none; }
+.p-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 5px; }
+.p-dot.green { background: var(--green); }
+
+/* MILESTONE BAR */
+.milestone-wrap { margin-bottom: 2rem; }
+.milestone-track { position: relative; height: 6px; background: var(--dim); border-radius: 3px; margin: .75rem 0; }
+.milestone-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--amber), var(--green)); transition: width .5s; }
+.milestone-markers { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.milestone-marker { text-align: center; }
+.milestone-marker.unlocked { color: var(--green); }
+.milestone-rewards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: .75rem; }
+.milestone-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: .6rem .75rem; text-align: center; }
+.milestone-card.unlocked { border-color: var(--green); }
+.milestone-pts { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--amber); }
+.milestone-card.unlocked .milestone-pts { color: var(--green); }
+.milestone-reward { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.milestone-card.unlocked .milestone-reward { color: var(--text); }
+.milestone-status { font-size: 10px; margin-top: 4px; font-family: var(--mono); }
+.milestone-card.unlocked .milestone-status { color: var(--green); }
+
+/* CALENDAR */
+.cal-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 2rem; }
+.cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+.cal-title { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); }
+.cal-btn { font-family: var(--mono); font-size: 11px; padding: 4px 12px; border-radius: 4px; border: 1px solid var(--blue); background: transparent; color: var(--blue); cursor: pointer; }
+.cal-btn:hover { background: var(--blue-dim); }
+.cal-btn.ai { border-color: var(--amber); color: var(--amber); }
+.cal-btn.ai:hover { background: var(--amber-dim); }
+.cal-events { display: flex; flex-direction: column; gap: 6px; }
+.cal-event { display: flex; align-items: center; gap: 10px; padding: .4rem .6rem; background: var(--blue-dim); border: 1px solid #1a3a5a; border-radius: 5px; font-size: 12px; }
+.cal-event-time { font-family: var(--mono); font-size: 11px; color: var(--blue); flex-shrink: 0; }
+.cal-event-title { color: var(--text); flex: 1; }
+.cal-event-conflict { font-size: 10px; color: var(--red); font-family: var(--mono); }
+.cal-empty { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.ai-result { margin-top: .75rem; padding: .75rem; background: var(--surface2); border: 1px solid var(--amber-dim); border-radius: 6px; font-size: 12px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+.ai-loading { color: var(--amber); font-family: var(--mono); font-size: 12px; }
+
+/* MODAL / TOAST */
+.toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; padding: 1rem 1.25rem; font-family: var(--mono); font-size: 13px; max-width: 280px; z-index: 100; opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast-title { font-weight: 600; margin-bottom: 4px; }
+.toast-sub { font-size: 11px; color: var(--muted); }
+
+@media (max-width: 700px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+  .block { grid-template-columns: 70px 24px 1fr auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" style="flex-shrink:0">
+      <polygon points="50,4 96,50 50,96 4,50" fill="none" stroke="#fbbf24" stroke-width="4"/>
+      <rect x="27" y="27" width="46" height="46" fill="none" stroke="#f87171" stroke-width="2.5" transform="rotate(20 50 50)"/>
+      <polygon points="50,20 74,70 26,70" fill="none" stroke="#e8e8e0" stroke-width="2.5"/>
+      <polygon points="50,80 26,30 74,30" fill="none" stroke="#60a5fa" stroke-width="2"/>
+      <line x1="50" y1="4" x2="50" y2="20" stroke="#fbbf24" stroke-width="1.5" opacity=".4"/>
+      <line x1="96" y1="50" x2="74" y2="50" stroke="#fbbf24" stroke-width="1.5" opacity=".4"/>
+      <line x1="50" y1="96" x2="50" y2="80" stroke="#fbbf24" stroke-width="1.5" opacity=".4"/>
+      <line x1="4" y1="50" x2="26" y2="50" stroke="#fbbf24" stroke-width="1.5" opacity=".4"/>
+      <circle cx="50" cy="50" r="7" fill="#fbbf24"/>
+      <circle cx="50" cy="50" r="3.5" fill="#111111"/>
+      <circle cx="50" cy="4" r="3" fill="#f87171"/>
+      <circle cx="96" cy="50" r="3" fill="#f87171"/>
+      <circle cx="50" cy="96" r="3" fill="#f87171"/>
+      <circle cx="4" cy="50" r="3" fill="#f87171"/>
+    </svg>
+    <div class="logo" style="margin:0"><span style="color:#fbbf24">WAR</span> SYSTEM</div>
+  </div>
+
+  <div class="pts-display">
+    <div class="pts-number" id="total-pts">0</div>
+    <div class="pts-label">war points</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="stat-label">hours</div>
+      <div class="stat-val green" id="stat-hrs">0/14</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">streak</div>
+      <div class="stat-val amber" id="stat-streak">0d</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">debt</div>
+      <div class="stat-val red" id="stat-debt">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">week</div>
+      <div class="stat-val blue" id="stat-week">0d</div>
+    </div>
+  </div>
+
+  <div class="sidebar-rules">
+    <div class="rules-title">point rules</div>
+    <div class="rule"><span>14h+ War Day</span><span class="rule-pts plus">+15</span></div>
+    <div class="rule"><span>10–13h Soldier Day</span><span class="rule-pts plus">+8</span></div>
+    <div class="rule"><span>6–9h Cadet Day</span><span class="rule-pts plus">+3</span></div>
+    <div class="rule"><span>Late start (after 7 AM)</span><span class="rule-pts minus">−10</span></div>
+    <div class="rule"><span>Under 6 hours</span><span class="rule-pts minus">−5</span></div>
+    <div class="rule"><span>Zero day</span><span class="rule-pts minus">−15</span></div>
+    <div class="rule"><span>Skipped workout</span><span class="rule-pts minus">−5</span></div>
+    <div class="rule"><span>3-day streak bonus</span><span class="rule-pts plus">+5</span></div>
+    <div class="rule"><span>7-day streak</span><span class="rule-pts plus">+20</span></div>
+  </div>
+
+  <button class="lock-btn" onclick="lockDay()">⬛ lock day &amp; score</button>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="main-header">
+    <div>
+      <div class="day-title" id="day-title">monday</div>
+      <div class="day-sub" id="day-sub">loading...</div>
+    </div>
+    <div class="today-badge" id="time-now">--:--</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="prog-label">0 of 14 blocks done</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="hour-blocks" id="hour-blocks"></div>
+  </div>
+
+  <!-- MILESTONE PROGRESS -->
+  <div class="milestone-wrap">
+    <div class="schedule-title" style="margin-bottom:.5rem">reward milestones</div>
+    <div class="milestone-track"><div class="milestone-fill" id="ms-fill" style="width:0%"></div></div>
+    <div class="milestone-rewards" id="ms-cards"></div>
+  </div>
+
+  <!-- PUNISHMENT + PUSHUP DEBT -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title red">push-up debt</div>
+      <div class="pushup-big" id="pushup-count">0</div>
+      <div class="pushup-sub">push-ups owed right now</div>
+      <div class="pushup-btns">
+        <button class="done-btn" onclick="payDebt(50)">paid 50</button>
+        <button class="done-btn" onclick="payDebt(25)">paid 25</button>
+        <button class="done-btn" onclick="payDebt(10)">paid 10</button>
+        <button onclick="addDebt(50)">+50</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title red">active punishments today</div>
+      <div class="punishment-list" id="punish-list"></div>
+    </div>
+  </div>
+
+  <!-- GOOGLE CALENDAR AI SYNC -->
+  <div class="cal-panel">
+    <div class="cal-header">
+      <div class="cal-title">google calendar — today's events</div>
+      <div style="display:flex;gap:6px">
+        <button class="cal-btn" onclick="fetchCalendar()">sync</button>
+        <button class="cal-btn ai" onclick="adaptSchedule()" id="adapt-btn" style="display:none">ai adapt ↗</button>
+      </div>
+    </div>
+    <div id="cal-events"><div class="cal-empty">tap sync to load today's events</div></div>
+    <div id="ai-result" style="display:none"></div>
+  </div>
+
+  <div class="schedule-title" style="margin-top:2rem">your daily war schedule — tap a block to mark done</div>
+  <div class="schedule" id="schedule"></div>
+
+  <div class="log-section">
+    <div class="schedule-title" style="margin-top:0">daily log</div>
+    <div id="log-list"><div style="font-size:12px;color:#555;font-family:var(--mono)">no days locked yet</div></div>
+  </div>
+</main>
+
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div class="toast-sub" id="toast-sub"></div>
+</div>
+
+<script>
+const SCHEDULE = [
+  { time:'5:00', title:'Wake up — no phone', desc:'Splash water, drink 500ml, sit at desk', cat:'admin', tag:'admin', hours:0 },
+  { time:'5:15', title:'Workout block 1 — strength', desc:'Push-ups 4×20, squats 4×20, plank 3×45s, pike push-up 3×12', cat:'body', tag:'body', hours:0.5 },
+  { time:'5:45', title:'Martial arts — Muay Thai basics', desc:'Shadow boxing 3 rounds, knee strikes, low kicks, guard drill', cat:'body', tag:'body', hours:0.5 },
+  { time:'6:15', title:'DE study — core skill', desc:'Kestra / Airflow / dbt — follow Zoomcamp module, take notes', cat:'work', tag:'work', hours:1 },
+  { time:'7:15', title:'DE study — hands-on', desc:'Code along, run the pipeline, commit to GitHub', cat:'work', tag:'work', hours:1 },
+  { time:'8:15', title:'IITM — Stats 2', desc:'One topic only: read → solve problems → review errors', cat:'study', tag:'study', hours:1 },
+  { time:'9:15', title:'IITM — Math 2', desc:'One topic only: read → solve problems → review errors', cat:'study', tag:'study', hours:1 },
+  { time:'10:15', title:'Break — no screens', desc:'Eat, walk 10 min outside, stretch', cat:'break', tag:'break', hours:0 },
+  { time:'10:45', title:'Portfolio project', desc:'NYC taxi ETL — add orchestration / dbt layer / write README', cat:'work', tag:'work', hours:1 },
+  { time:'11:45', title:'Portfolio project cont.', desc:'Push code, document what you built, one GitHub commit', cat:'work', tag:'work', hours:1 },
+  { time:'12:45', title:'Lunch + rest', desc:'Eat, lie down 20 min — no scrolling', cat:'break', tag:'break', hours:0 },
+  { time:'13:15', title:'DE deep work', desc:'Harder problem: BigQuery / Spark basics / dbt models', cat:'work', tag:'work', hours:1 },
+  { time:'14:15', title:'DE deep work cont.', desc:'Continue, test, debug, document', cat:'work', tag:'work', hours:1 },
+  { time:'15:15', title:'Job applications', desc:'Apply to 2 roles on Naukri/LinkedIn, tailor resume bullet, DM one recruiter', cat:'admin', tag:'admin', hours:1 },
+  { time:'16:15', title:'SQL / LeetCode', desc:'2 medium SQL problems on StrataScratch — review solutions', cat:'work', tag:'work', hours:1 },
+  { time:'17:15', title:'Break — movement', desc:'10 min walk, hydrate, light snack', cat:'break', tag:'break', hours:0 },
+  { time:'17:30', title:'IITM — past papers', desc:'Timed practice: 30 min Stats 2 or Math 2 past questions', cat:'study', tag:'study', hours:1 },
+  { time:'18:30', title:'DE review + plan tomorrow', desc:'Read one article/doc, write 3 bullets of what you learned today', cat:'work', tag:'work', hours:1 },
+  { time:'19:30', title:'Martial arts — conditioning', desc:'Skipping 3×3min, burpees 4×10, core: leg raises 3×15', cat:'body', tag:'body', hours:0.5 },
+  { time:'20:00', title:'Wind down', desc:'No DE/study. Light reading, Gita, or plan next day. Lights out by 21:30', cat:'break', tag:'break', hours:0 },
+];
+
+const WORK_BLOCKS = SCHEDULE.filter(b => b.hours >= 1).length;
+
+const MILESTONES = [
+  { pts: 50,  reward: 'Buy something online (≤₹500)', icon: '🛒' },
+  { pts: 100, reward: 'Full hangout — guilt-free day', icon: '🤝' },
+  { pts: 150, reward: 'Bigger purchase (≤₹1500)', icon: '🎁' },
+  { pts: 200, reward: 'Hangout + anime week', icon: '👑' },
+];
+
+let state = {
+  done: new Array(SCHEDULE.length).fill(false),
+  totalPts: 0,
+  streak: 0,
+  weekDays: 0,
+  pushupDebt: 0,
+  startedLate: null,
+  activePunishments: [],
+  claimedMilestones: [],
+  log: [],
+};
+
+try {
+  const s = JSON.parse(localStorage.getItem('war-state-v3'));
+  if(s) state = {...state, ...s, done: s.done || new Array(SCHEDULE.length).fill(false)};
+} catch(e){}
+
+function save(){ try{ localStorage.setItem('war-state-v3', JSON.stringify(state)); }catch(e){} }
+
+function hoursLogged(){
+  return state.done.reduce((acc,d,i)=>acc+(d&&SCHEDULE[i].hours>=1?1:0),0);
+}
+function workoutLogged(){
+  return state.done.some((d,i)=>d&&SCHEDULE[i].cat==='body');
+}
+
+function toast(title, sub, color){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-title').textContent=title;
+  document.getElementById('toast-sub').textContent=sub||'';
+  t.style.borderColor = color||'#3a3a3a';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+function payDebt(n){
+  state.pushupDebt = Math.max(0, state.pushupDebt - n);
+  save(); render();
+  toast('Debt paid: −'+n+' push-ups', state.pushupDebt+' remaining', '#4ade80');
+}
+function addDebt(n){
+  state.pushupDebt += n;
+  save(); render();
+  toast('+'+n+' push-ups added to debt', 'Total: '+state.pushupDebt, '#f87171');
+}
+
+function renderMilestones(){
+  const pts = Math.max(0, state.totalPts);
+  const maxPts = MILESTONES[MILESTONES.length-1].pts;
+  const pct = Math.min(100, Math.round((pts/maxPts)*100));
+  document.getElementById('ms-fill').style.width = pct+'%';
+
+  const container = document.getElementById('ms-cards');
+  container.innerHTML = '';
+  MILESTONES.forEach(m => {
+    const unlocked = pts >= m.pts;
+    const claimed = state.claimedMilestones.includes(m.pts);
+    const div = document.createElement('div');
+    div.className = 'milestone-card' + (unlocked ? ' unlocked' : '');
+    div.innerHTML = `
+      <div class="milestone-pts">${m.pts}pts</div>
+      <div class="milestone-reward">${m.reward}</div>
+      <div class="milestone-status">${claimed ? '✓ claimed' : unlocked ? '🔓 UNLOCKED' : 'locked'}</div>
+      ${unlocked && !claimed ? `<button onclick="claimMilestone(${m.pts})" style="margin-top:6px;font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:3px;border:1px solid var(--green);background:transparent;color:var(--green);cursor:pointer;">claim</button>` : ''}
+    `;
+    container.appendChild(div);
+  });
+}
+
+function claimMilestone(pts){
+  if(!state.claimedMilestones.includes(pts)) state.claimedMilestones.push(pts);
+  const m = MILESTONES.find(x=>x.pts===pts);
+  save(); render();
+  toast('Reward claimed!', m ? m.reward : '', '#4ade80');
+}
+
+function renderPunishments(){
+  const el = document.getElementById('punish-list');
+  document.getElementById('pushup-count').textContent = state.pushupDebt;
+  if(!state.activePunishments.length){
+    el.innerHTML='<div style="font-size:12px;color:#555;font-family:var(--mono)">no active punishments</div>';
+    return;
+  }
+  el.innerHTML = state.activePunishments.map((p,i)=>`
+    <div class="punishment-item">
+      <div class="p-dot"></div>
+      <div style="flex:1">${p}</div>
+      <div onclick="dismissPunishment(${i})" style="cursor:pointer;color:#555;font-size:11px;font-family:var(--mono)">✓</div>
+    </div>
+  `).join('');
+}
+
+function dismissPunishment(i){
+  state.activePunishments.splice(i,1);
+  save(); render();
+}
+
+function renderStats(){
+  const h=hoursLogged();
+  document.getElementById('total-pts').textContent=state.totalPts;
+  document.getElementById('stat-hrs').textContent=h+'/14';
+  document.getElementById('stat-streak').textContent=state.streak+'d';
+  document.getElementById('stat-debt').textContent=state.pushupDebt+'pu';
+  document.getElementById('stat-week').textContent=state.weekDays+'d';
+  const pct=Math.round((h/14)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=h+' of 14 work blocks done';
+  document.getElementById('prog-pct').textContent=pct+'%';
+
+  const hb=document.getElementById('hour-blocks');
+  hb.innerHTML='';
+  for(let i=0;i<14;i++){
+    const d=document.createElement('div');
+    d.className='hb'+(i<h?' done':'');
+    hb.appendChild(d);
+  }
+}
+
+function renderSchedule(){
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const el=document.getElementById('schedule');
+  el.innerHTML='';
+  SCHEDULE.forEach((b,i)=>{
+    const [hh,mm]=b.time.split(':').map(Number);
+    const blockMin=hh*60+mm;
+    const isActive=nowMin>=blockMin && nowMin<blockMin+60;
+    const div=document.createElement('div');
+    div.className='block cat-'+b.cat+(state.done[i]?' done':'')+(isActive&&!state.done[i]?' active-block':'');
+    div.onclick=()=>toggleBlock(i);
+    div.innerHTML=`
+      <div class="block-time">${b.time}</div>
+      <div class="block-check">${state.done[i]?'✓':''}</div>
+      <div class="block-info">
+        <div class="block-title">${b.title}</div>
+        <div class="block-desc">${b.desc}</div>
+      </div>
+      <div class="block-tag tag-${b.cat}">${b.tag}</div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function renderLog(){
+  const el=document.getElementById('log-list');
+  if(!state.log.length){el.innerHTML='<div style="font-size:12px;color:#555;font-family:var(--mono)">no days locked yet</div>';return;}
+  el.innerHTML=[...state.log].reverse().slice(0,20).map(e=>`
+    <div class="log-entry">
+      <span class="log-date">${e.date}</span>
+      <span class="log-label">${e.label}</span>
+      <span class="log-pts ${e.pts>=0?'pos':'neg'}">${e.pts>=0?'+':''}${e.pts}</span>
+    </div>
+  `).join('');
+}
+
+function render(){
+  renderStats();
+  renderMilestones();
+  renderPunishments();
+  renderSchedule();
+  renderLog();
+}
+
+function toggleBlock(i){
+  const wasDone=state.done[i];
+  state.done[i]=!wasDone;
+  if(!wasDone && state.startedLate===null){
+    const now=new Date();
+    state.startedLate = now.getHours()>=7;
+    if(state.startedLate) toast('Late start — penalty incoming','50 push-ups added to debt + −10 pts at lock','#f87171');
+    else toast('Early start — clean slate','No late penalty today','#4ade80');
+  }
+  save(); render();
+}
+
+function lockDay(){
+  const h=hoursLogged();
+  const workout=workoutLogged();
+  let pts=0, label='';
+  const punishments=[];
+
+  if(h>=14){pts=15;label='War Day ('+h+'h)';}
+  else if(h>=10){pts=8;label='Soldier Day ('+h+'h)';}
+  else if(h>=6){pts=3;label='Cadet Day ('+h+'h)';}
+  else if(h===0){
+    pts=-15;label='Zero Day';
+    punishments.push('No smoking for 48 hours');
+    punishments.push('No fast food for 48 hours');
+    punishments.push('Wake up 30 min earlier tomorrow');
+    state.pushupDebt+=50;
+  } else {
+    pts=-5;label='Under 6h ('+h+'h)';
+    punishments.push('No smoking today');
+    punishments.push('Wake up 30 min earlier tomorrow');
+  }
+
+  if(state.startedLate){
+    pts-=10;
+    state.pushupDebt+=50;
+    punishments.push('50 push-ups added (late start)');
+  }
+
+  if(!workout){
+    pts-=5;
+    label+=' [no workout]';
+    state.pushupDebt+=50;
+    punishments.push('50 push-ups added (skipped workout)');
+  }
+
+  state.totalPts+=pts;
+
+  // streak bonuses
+  if(h>=10){
+    state.streak++;
+    state.weekDays=Math.min(7,state.weekDays+1);
+    if(state.streak===3){
+      state.totalPts+=5;
+      state.log.push({date:'bonus',label:'3-day streak! +5pts',pts:5});
+      toast('3-day streak!','Bonus +5 pts earned','#fbbf24');
+    }
+    if(state.streak===7){
+      state.totalPts+=20;
+      state.log.push({date:'bonus',label:'Week Conqueror! +20pts',pts:20});
+      toast('WEEK CONQUEROR','Bonus +20 pts — you earned a hangout','#4ade80');
+    }
+    // War Day anime reward
+    if(h>=14) punishments.push('✓ REWARD: 1 hour anime tonight');
+  } else {
+    state.streak=0;
+    state.weekDays=0;
+  }
+
+  // check milestone unlocks
+  const prevPts = state.totalPts - pts;
+  MILESTONES.forEach(m=>{
+    if(state.totalPts>=m.pts && prevPts<m.pts){
+      toast('MILESTONE UNLOCKED: '+m.pts+'pts!', m.reward, '#4ade80');
+    }
+  });
+
+  state.activePunishments = [...punishments];
+
+  const d=new Date();
+  const dateStr=d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+  state.log.push({date:dateStr,label:label+(state.startedLate?' [late]':''),pts:pts});
+  state.done=new Array(SCHEDULE.length).fill(false);
+  state.startedLate=null;
+  save(); render();
+
+  if(pts<0){
+    setTimeout(()=>toast('Day locked: '+pts+' pts', punishments.slice(0,2).join(' • '), '#f87171'),500);
+  } else {
+    setTimeout(()=>toast('Day locked: +'+pts+' pts', label, '#4ade80'),500);
+  }
+}
+
+let calendarEvents = [];
+
+async function fetchCalendar(){
+  const evEl = document.getElementById('cal-events');
+  evEl.innerHTML = '<div class="cal-empty ai-loading">fetching calendar...</div>';
+  document.getElementById('ai-result').style.display='none';
+  document.getElementById('adapt-btn').style.display='none';
+
+  try {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        mcp_servers: [{ type: "url", url: "https://gcal.mcp.claude.com/mcp", name: "gcal" }],
+        messages: [{
+          role: "user",
+          content: `List all my Google Calendar events for today (${now.toDateString()}). For each event return ONLY a JSON array like:
+[{"title":"event name","start":"HH:MM","end":"HH:MM"}]
+Return ONLY the JSON array, no other text.`
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const textBlocks = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+
+    let events = [];
+    try {
+      const match = textBlocks.match(/\[[\s\S]*\]/);
+      if(match) events = JSON.parse(match[0]);
+    } catch(e) {}
+
+    calendarEvents = events;
+
+    if(!events.length){
+      evEl.innerHTML = '<div class="cal-empty">no events today — full war schedule active</div>';
+      return;
+    }
+
+    // detect conflicts with war schedule
+    evEl.innerHTML = '';
+    events.forEach(ev => {
+      const evStartMin = timeToMin(ev.start);
+      const conflicts = SCHEDULE.filter(b => {
+        const bMin = timeToMin(b.time);
+        const evEndMin = timeToMin(ev.end);
+        return bMin >= evStartMin && bMin < evEndMin && b.hours >= 1;
+      });
+      const div = document.createElement('div');
+      div.className = 'cal-event';
+      div.innerHTML = `
+        <div class="cal-event-time">${ev.start}–${ev.end}</div>
+        <div class="cal-event-title">${ev.title}</div>
+        ${conflicts.length ? `<div class="cal-event-conflict">⚠ ${conflicts.length} conflict${conflicts.length>1?'s':''}</div>` : ''}
+      `;
+      evEl.appendChild(div);
+    });
+
+    document.getElementById('adapt-btn').style.display = 'block';
+
+  } catch(err) {
+    evEl.innerHTML = '<div class="cal-empty" style="color:var(--red)">error: ' + err.message + '</div>';
+  }
+}
+
+function timeToMin(t){
+  if(!t) return 0;
+  const [h,m] = t.split(':').map(Number);
+  return h*60+(m||0);
+}
+
+async function adaptSchedule(){
+  const aiEl = document.getElementById('ai-result');
+  aiEl.style.display = 'block';
+  aiEl.innerHTML = '<div class="ai-loading">ai is reshuffling your schedule...</div>';
+
+  const scheduleStr = SCHEDULE.map(b => `${b.time} — ${b.title} (${b.hours}h, ${b.cat})`).join('\n');
+  const eventsStr = calendarEvents.map(e => `${e.start}–${e.end}: ${e.title}`).join('\n');
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: `You are a brutal productivity AI for a data engineering student in India trying to work 14 hours a day.
+
+His fixed war schedule is:
+${scheduleStr}
+
+Today he has these Google Calendar events that he MUST attend:
+${eventsStr}
+
+Reshuffle his war schedule around these events so he still hits 14 work hours total. Rules:
+- Keep workout blocks (body) — non-negotiable
+- Keep break blocks
+- Compress or merge work blocks if needed
+- Be specific with new times
+- Be direct and brief — no fluff
+
+Output a revised schedule as a clean list of times and tasks.`
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    aiEl.innerHTML = '<div style="font-size:10px;color:var(--amber);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">ai-adapted schedule</div><div style="font-size:12px;line-height:1.7;color:var(--text)">' + text.replace(/\n/g,'<br>') + '</div>';
+
+  } catch(err) {
+    aiEl.innerHTML = '<div style="color:var(--red);font-size:12px">error: ' + err.message + '</div>';
+  }
+}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('time-now').textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+  document.getElementById('day-title').textContent=now.toLocaleDateString('en-IN',{weekday:'long'}).toLowerCase();
+  document.getElementById('day-sub').textContent=now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+}
+
+updateClock();
+setInterval(updateClock,30000);
+render();
+</script>
+</body>
+</html>
